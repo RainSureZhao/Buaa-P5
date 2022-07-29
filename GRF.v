@@ -21,7 +21,7 @@ module GRF(
 	 always @(posedge clk) begin
 	    if(reset) begin
 		    for(i = 0; i <= 31; i = i + 1) begin
-				regs[i]<=0;
+				regs[i] <= 0;
 				//regs[28]=32'h00001800;
 				//regs[29]=32'h00002ffc;
 			end
@@ -30,8 +30,8 @@ module GRF(
 		    regs[WAddr] <= WData;
 //				$display("@%h: $%d <= %h", IAddr, WAddr,WData);
 				$display("%d@%h: $%d <= %h", $time,IAddr, WAddr,WData);
-		  end
-	 end
-	 assign RData1=regs[RAddr1];
-	 assign RData2=regs[RAddr2];
+		end
+	end
+	assign RData1 = regs[RAddr1];
+	assign RData2 = regs[RAddr2];
 endmodule

@@ -85,7 +85,7 @@ module mips(
 	preg32 PC4FD(clk, ~stall, (~delay_slot & PCSrc & ~stall) | reset, IAddrF + 4, PC4D);
 	preg32 IAddrFD(clk, stall, (~delay_slot & PCSrc & ~stall) | reset, IAddrF, IAddrD);
 	//decode  译码部分
-	Controller ctrlD(InstrD, JumpD, RegSrcD, MemWriteD, BranchD, ALUSrcD, RegDstD, RegWriteD, ExtOpD, ALUCtrlD, loenD,h ienD);
+	Controller ctrlD(InstrD, JumpD, RegSrcD, MemWriteD, BranchD, ALUSrcD, RegDstD, RegWriteD, ExtOpD, ALUCtrlD, loenD, hienD);
 	wire [31:0]		RegWDataM;
 	wire [31:0]		RegWDataW;
 	wire [4:0]		WriteRegM;
@@ -108,7 +108,7 @@ module mips(
 	wire 			true;
 	assign PCSrc = BranchD && true;
 	wire [31:0]		jumpto;
-	assign cmp1 = ForwardrsD ==3 ? PC4E : ForwardrsD = =2 ? RegWDataM : ForwardrsD == 1 ? RegWDataW : RegRData1D;
+	assign cmp1 = ForwardrsD == 3 ? PC4E : ForwardrsD == 2 ? RegWDataM : ForwardrsD == 1 ? RegWDataW : RegRData1D;
 	assign cmp2 = ForwardrtD == 3 ? PC4E : ForwardrtD == 2 ? RegWDataM : ForwardrtD == 1 ? RegWDataW : RegRData2D;
 	compare cmp(cmp1, cmp2, ALUCtrlD[2 : 0], true);
 	assign jumpto = ALUSrcD[0] ? {IAddrF[31:28], InstrD[25:0], 2'b00} : cmp1;

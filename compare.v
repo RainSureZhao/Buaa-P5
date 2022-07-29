@@ -1,9 +1,9 @@
 `timescale 1ns / 1ns
 module compare(
-input [31:0]c1,
-input [31:0]c2,
-input [2:0]sel,
-output reg true
+	input [31:0]	c1,
+	input [31:0]	c2,
+	input [2:0]		sel,
+	output reg 		true
 );
     always @(*) begin
 	     case(sel)

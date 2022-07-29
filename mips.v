@@ -8,73 +8,73 @@ module mips(
 	parameter condition = 1'b1;//bxxal
 	 
 	wire stall;  // 暂停信号
-	wire [1:0]ForwardrsD;
-	wire [1:0]ForwardrtD;
-	wire [1:0]ForwardrsE;
-	wire [1:0]ForwardrtE;
-	wire ForwardrtM;
+	wire [1:0]	ForwardrsD;
+	wire [1:0]	ForwardrtD;
+	wire [1:0]	ForwardrsE;
+	wire [1:0]	ForwardrtE;
+	wire 		ForwardrtM;
 	 
-    wire [31:0]nextPC;
-	wire [31:0]IAddrF;
-	wire [31:0]IAddrD;
-	wire [31:0]IAddrE;
-	wire [31:0]IAddrM;
-	wire [31:0]IAddrW;
+    wire [31:0]	nextPC;  
+	wire [31:0]	IAddrF;
+	wire [31:0]	IAddrD;
+	wire [31:0]	IAddrE;
+	wire [31:0]	IAddrM;
+	wire [31:0]	IAddrW;
 	 
-	wire [31:0]InstrF;
-	wire [31:0]InstrD;
-	wire [31:0]InstrE;
-	wire [31:0]InstrM;
-	wire [31:0]InstrW;
-	wire [31:0]PC4D;
+	wire [31:0]	InstrF;
+	wire [31:0]	InstrD;
+	wire [31:0]	InstrE;
+	wire [31:0]	InstrM;
+	wire [31:0]	InstrW;
+	wire [31:0]	PC4D;
 	 
-	wire JumpD;
-    wire	[2:0]RegSrcD;
-	wire	MemWriteD;
-	wire	BranchD;
-	wire	[1:0]ALUSrcD;
-	wire	[1:0]RegDstD;
-	wire	RegWriteD;
-	wire	[1:0]ExtOpD;
-	wire	[3:0]ALUCtrlD;
-	wire	loenD;
-	wire	hienD;
+	wire 		JumpD;  // 跳到译码阶段
+    wire [2:0] 	RegSrcD;
+	wire		MemWriteD;
+	wire		BranchD;
+	wire [1:0] 	ALUSrcD;
+	wire [1:0]	RegDstD;
+	wire		RegWriteD;
+	wire [1:0]	ExtOpD;
+	wire [4:0]	ALUCtrlD;
+	wire		loenD;
+	wire		hienD;
 	 
-	wire JumpE;
-    wire	[2:0]RegSrcE;
-	wire	MemWriteE;
-	wire	BranchE;
-	wire	[1:0]ALUSrcE;
-	wire	[1:0]RegDstE;
-	wire	RegWriteE;
-	wire	[1:0]ExtOpE;
-	wire	[3:0]ALUCtrlE;
-	wire	loenE;
-	wire	hienE;
+	wire 		JumpE;  // 跳到执行阶段
+    wire [2:0]	RegSrcE;
+	wire		MemWriteE;
+	wire		BranchE;
+	wire [1:0]	ALUSrcE;
+	wire [1:0]	RegDstE;
+	wire		RegWriteE;
+	wire [1:0]	ExtOpE;
+	wire [4:0]	ALUCtrlE;
+	wire		loenE;
+	wire		hienE;
 	 
-	wire JumpM;
-    wire	[2:0]RegSrcM;
-	wire	MemWriteM;
-	wire	BranchM;
-	wire	[1:0]ALUSrcM;
-	wire	[1:0]RegDstM;
-	wire	RegWriteM;
-	wire	[1:0]ExtOpM;
-	wire	[3:0]ALUCtrlM;
-	wire	loenM;
-	wire	hienM;
+	wire 		JumpM;  // 跳到存储阶段
+    wire [2:0]	RegSrcM;
+	wire		MemWriteM;
+	wire		BranchM;
+	wire [1:0]	ALUSrcM;
+	wire [1:0]	RegDstM;
+	wire		RegWriteM;
+	wire [1:0]	ExtOpM;
+	wire [4:0]	ALUCtrlM;
+	wire		loenM;
+	wire		hienM;
 	 
-	wire JumpW;
-    wire	[2:0]RegSrcW;
-	wire	MemWriteW;
-	wire	BranchW;
-	wire	[1:0]ALUSrcW;
-	wire	[1:0]RegDstW;
-	wire	RegWriteW;
-	wire	[1:0]ExtOpW;
-	wire	[3:0]ALUCtrlW;
-	wire	loenW;
-	wire	hienW;
+	wire 		JumpW;  // 回写阶段
+    wire [2:0]  RegSrcW;
+	wire		MemWriteW;
+	wire		BranchW;
+	wire [1:0]	ALUSrcW;
+	wire [1:0]	RegDstW;
+	wire		RegWriteW;
+	wire [1:0]	ExtOpW;
+	wire [4:0]	ALUCtrlW;
+	wire		loenW;
+	wire		hienW;
 	 
 	wire PCSrc;
 	 //fetch   取指部分

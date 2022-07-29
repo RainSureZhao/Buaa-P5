@@ -5,14 +5,27 @@ module compare(
 	input [2:0]		sel,
 	output reg 		true
 );
+// 比较器
     always @(*) begin
-	     case(sel)
-		      0:true=c1==c2;
-				1:true=c1!=c2;
-				2:true=c1==0||c1[31];
-				3:true=c1!=0&&~c1[31];
-				4:true=c1[31];
-				5:true=~c1[31];
-		  endcase
-	 end
+	    case(sel)
+		    0 : begin
+				true = c1 == c2; // 等于判断
+			end
+			1 : begin 
+				true = c1 != c2;  // 不等于判断
+			end
+			2 : begin 
+				true = c1 == 0 || c1[31];  // c1 <= 0
+			end
+			3 : begin
+				 true = c1 != 0 && ~c1[31];  // c1 > 0
+			end
+			4 : begin 
+				true = c1[31];  // c1 < 0
+			end
+			5 : begin 
+				true = ~c1[31];  // c1 >= 0
+			end
+		endcase
+	end
 endmodule

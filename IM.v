@@ -7,9 +7,9 @@ module Instr_Memory(
 	integer i;
 	initial begin
 	    for(i = 0; i < 4096; i = i + 1) begin
-			rom[i]=0;
+			rom[i] = 0;
 		end
 		$readmemh("code.txt",rom);
 	end
-	assign RData=rom[RAddr];
+	assign RData = rom[RAddr];
 endmodule

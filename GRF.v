@@ -29,7 +29,7 @@ module GRF(
 		else if(WEnable && WAddr > 0) begin
 		    regs[WAddr] <= WData;
 //				$display("@%h: $%d <= %h", IAddr, WAddr,WData);
-				$display("%d@%h: $%d <= %h", $time,IAddr, WAddr,WData);
+				$display("%d@%h: $%d <= %h", $time, IAddr, WAddr, WData);
 		end
 	end
 	assign RData1 = regs[RAddr1];

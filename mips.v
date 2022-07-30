@@ -5,7 +5,7 @@ module mips(
 	input reset
 );
     parameter delay_slot = 1'b1;
-	parameter condition = 1'b1;//bxxal
+	parameter condition = 1'b1; //bxxal
 	 
 	wire stall;  // 暂停信号
 	wire [1:0]	ForwardrsD;
@@ -83,7 +83,7 @@ module mips(
 	 
 	preg32 InstrFD(clk, ~stall, (~delay_slot & PCSrc & ~stall) | reset, InstrF, InstrD);
 	preg32 PC4FD(clk, ~stall, (~delay_slot & PCSrc & ~stall) | reset, IAddrF + 4, PC4D);
-	preg32 IAddrFD(clk, stall, (~delay_slot & PCSrc & ~stall) | reset, IAddrF, IAddrD);
+	preg32 IAddrFD(clk, ~stall, (~delay_slot & PCSrc & ~stall) | reset, IAddrF, IAddrD);
 	//decode  译码部分
 	Controller ctrlD(InstrD, JumpD, RegSrcD, MemWriteD, BranchD, ALUSrcD, RegDstD, RegWriteD, ExtOpD, ALUCtrlD, loenD, hienD);
 	wire [31:0]		RegWDataM;
@@ -98,9 +98,9 @@ module mips(
 	wire [31:0]		RegRData2D;
 	wire [31:0]		ImmD;
 	wire [31:0]		PC4E;
-	assign rsD = InstrD[25:21];
-	assign rtD = InstrD[20:16];
-	assign rdD = InstrD[15:11];
+	assign rsD = InstrD[25 : 21];
+	assign rtD = InstrD[20 : 16];
+	assign rdD = InstrD[15 : 11];
 	GRF rf(clk, BranchW && condition ? RegWriteW && trueW : RegWriteW, reset, rsD, rtD, WriteRegW, RegWDataW, IAddrW, RegRData1D, RegRData2D);
 	ext immext(InstrD[15:0], ExtOpD, ImmD);
 	wire [31:0]		cmp1;
@@ -111,7 +111,7 @@ module mips(
 	assign cmp1 = ForwardrsD == 3 ? PC4E : ForwardrsD == 2 ? RegWDataM : ForwardrsD == 1 ? RegWDataW : RegRData1D;
 	assign cmp2 = ForwardrtD == 3 ? PC4E : ForwardrtD == 2 ? RegWDataM : ForwardrtD == 1 ? RegWDataW : RegRData2D;
 	compare cmp(cmp1, cmp2, ALUCtrlD[2 : 0], true);
-	assign jumpto = ALUSrcD[0] ? {IAddrF[31:28], InstrD[25:0], 2'b00} : cmp1;
+	assign jumpto = ALUSrcD[0] ? {IAddrF[31 : 28], InstrD[25 : 0], 2'b00} : cmp1;
 	assign nextPC = JumpD ? jumpto : PCSrc ? PC4D + ImmD :IAddrF + 4;
 	 
 	wire [31:0]		RegRData1E;
@@ -181,11 +181,11 @@ module mips(
 	 
 	wire [4:0]		tmpM;
 	//wire [4:0]tmpW;
-	assign tmpM = {ALUOutM[1:0], 3'b00};
+	assign tmpM = {ALUOutM[1:0], 3'b000};
 	//assign tmpW={ALUOutW[1:0],3'b00};
 	wire [31:0]		readdata;
-	//assign readdata=InstrM[31:26]!=38||tmpM==0?MemRDataM:(((WData>>(5'b0-tmpM))<<(5'b0-tmpM))|(MemRDataM>>tmpM));//lwr
-	assign readdata = InstrM[31:26] != 34 || tmpM == 24 ? MemRDataM : (((WData << (5'b1000 + tmpM)) >> (5'b1000 + tmpM )) | ( MemRDataM << (5'b11000 - tmpM)));//lwl
+	//assign readdata=InstrM[31:26]!=38||tmpM==0?MemRDataM:(((WData>>(5'b0-tmpM))<<(5'b0-tmpM))|(MemRDataM>>tmpM)); //lwr
+	assign readdata = InstrM[31:26] != 34 || tmpM == 24 ? MemRDataM : (((WData << (5'b1000 + tmpM )) >> (5'b1000 + tmpM )) | ( MemRDataM << (5'b11000 - tmpM))); //lwl
 	
 	wire [31:0]		ALUOutW;
 	wire [31:0]		PC4W;
@@ -204,10 +204,10 @@ module mips(
 	Controller ctrlW(InstrW, JumpW, RegSrcW, MemWriteW, BranchW, ALUSrcW, RegDstW, RegWriteW, ExtOpW, ALUCtrlW, loenW, hienW);
 	assign RegWDataW = RegSrcW == 2 ? PC4W : RegSrcW == 1 ? MemRDataW : ALUOutW;
 	 
-	 conflict hazard  
-	 (WriteRegE, WriteRegM, BranchE&&condition ? RegWriteE&&trueE: RegWriteE,
-	 BranchM&&condition ? RegWriteM&&trueM : RegWriteM, RegSrcE, RegSrcM, BranchD, JumpD, JumpE, RegDstD,
-	 rsD, rtD, rsE, rtE, WriteRegW,
-	 BranchW&&condition ? RegWriteW && trueW : RegWriteW, rtM, stall,
-	 ForwardrsD, ForwardrtD, ForwardrsE, ForwardrtE, ForwardrtM);
+	conflict hazard  
+	(WriteRegE, WriteRegM, (BranchE && condition) ? (RegWriteE && trueE) : RegWriteE,
+	(BranchM && condition) ? (RegWriteM && trueM) : RegWriteM, RegSrcE, RegSrcM, BranchD, JumpD, JumpE, RegDstD,
+	rsD, rtD, rsE, rtE, WriteRegW,
+	(BranchW && condition) ? (RegWriteW && trueW) : RegWriteW, rtM, stall,
+	ForwardrsD, ForwardrtD, ForwardrsE, ForwardrtE, ForwardrtM);
 endmodule

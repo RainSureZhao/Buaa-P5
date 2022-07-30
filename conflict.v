@@ -40,9 +40,9 @@ module conflict(
 	wire branchstall, jumpstall, loadstall;
 	assign branchstall = BranchD && 
 					((WriteRegE !=0 && RegWriteE && RegSrcE !=2 && (rsD == WriteRegE ||rtD == WriteRegE))||
-							(WriteRegM != 0 && RegSrcM == 1 && (rsD == WriteRegM ||rtD == WriteRegM)));
+							(WriteRegM != 0 && RegSrcM == 1 && ( rsD == WriteRegM || rtD == WriteRegM)));
 	assign jumpstall = JumpD && 
-					(WriteRegE != 0 && (RegWriteE && RegSrcE!=2 && rsD==WriteRegE)||
+					(WriteRegE != 0 && (RegWriteE && RegSrcE != 2 && rsD == WriteRegE) ||
 							(WriteRegM != 0 && RegSrcM == 1 && rsD == WriteRegM));
 	assign loadstall = RegSrcE == 1 && WriteRegE != 0 && ((RegDstD != 0 && rtD == WriteRegE)|| rsD == WriteRegE);
 	//assign muldivstall=mdbusy && usehilo; 

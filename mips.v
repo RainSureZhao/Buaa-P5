@@ -15,11 +15,11 @@ module mips(
 	wire 		ForwardrtM;
 	 
     wire [31:0]	nextPC;  
-	wire [31:0]	IAddrF;
-	wire [31:0]	IAddrD;
-	wire [31:0]	IAddrE;
-	wire [31:0]	IAddrM;
-	wire [31:0]	IAddrW;
+	wire [31:0]	IAddrF;  // 取指阶段的指令的地址
+	wire [31:0]	IAddrD;  // 译码阶段的指令的地址
+	wire [31:0]	IAddrE;  // 指令阶段的指令的地址
+	wire [31:0]	IAddrM;  // 存储阶段的指令的地址
+	wire [31:0]	IAddrW;  // 回写阶段的指令的地址
 	 
 	wire [31:0]	InstrF;
 	wire [31:0]	InstrD;
@@ -27,8 +27,10 @@ module mips(
 	wire [31:0]	InstrM;
 	wire [31:0]	InstrW;
 	wire [31:0]	PC4D;
-	 
-	wire 		JumpD;  // 跳到译码阶段
+
+	// 四个中间部分
+	// D阶段的控制信号
+	wire 		JumpD;  // 
     wire [2:0] 	RegSrcD;
 	wire		MemWriteD;
 	wire		BranchD;
@@ -39,8 +41,9 @@ module mips(
 	wire [4:0]	ALUCtrlD;
 	wire		loenD;
 	wire		hienD;
-	 
-	wire 		JumpE;  // 跳到执行阶段
+
+	// E阶段的控制信号 
+	wire 		JumpE;  
     wire [2:0]	RegSrcE;
 	wire		MemWriteE;
 	wire		BranchE;
@@ -51,7 +54,8 @@ module mips(
 	wire [4:0]	ALUCtrlE;
 	wire		loenE;
 	wire		hienE;
-	 
+	
+	// M阶段的控制信号
 	wire 		JumpM;  // 跳到存储阶段
     wire [2:0]	RegSrcM;
 	wire		MemWriteM;
@@ -63,8 +67,9 @@ module mips(
 	wire [4:0]	ALUCtrlM;
 	wire		loenM;
 	wire		hienM;
-	 
-	wire 		JumpW;  // 回写阶段
+	
+	// W阶段的控制信号
+	wire 		JumpW;  
     wire [2:0]  RegSrcW;
 	wire		MemWriteW;
 	wire		BranchW;
@@ -78,14 +83,14 @@ module mips(
 	 
 	wire PCSrc;
 	 //fetch   取指部分
-	PC pc(clk, ~stall, reset, nextPC, IAddrF);
-	Instr_Memory im(IAddrF[13:2] - 12'hc00, InstrF);
+	PC pc(.clk(clk), .en(~stall), .reset(reset), .next(nextPC), .IAddr(IAddrF));
+	Instr_Memory im(.RAddr(IAddrF[13:2] - 12'hc00), .RData(InstrF));
 	 
-	preg32 InstrFD(clk, ~stall, (~delay_slot & PCSrc & ~stall) | reset, InstrF, InstrD);
-	preg32 PC4FD(clk, ~stall, (~delay_slot & PCSrc & ~stall) | reset, IAddrF + 4, PC4D);
-	preg32 IAddrFD(clk, ~stall, (~delay_slot & PCSrc & ~stall) | reset, IAddrF, IAddrD);
-	//decode  译码部分
-	Controller ctrlD(InstrD, JumpD, RegSrcD, MemWriteD, BranchD, ALUSrcD, RegDstD, RegWriteD, ExtOpD, ALUCtrlD, loenD, hienD);
+	preg32 InstrFD(.clk(clk), .en(~stall), .reset((~delay_slot & PCSrc & ~stall) | reset), .in(InstrF), .out(InstrD));
+	preg32 PC4FD(.clk(clk), .en(~stall), .reset((~delay_slot & PCSrc & ~stall) | reset), .in(IAddrF + 4), .out(PC4D));
+	preg32 IAddrFD(.clk(clk), .en(~stall), .reset((~delay_slot & PCSrc & ~stall) | reset), .in(IAddrF), .out(IAddrD));
+	//decode  译码部分 
+	Controller ctrlD(.cmd(InstrD), .Jump(JumpD), .RegSrc(RegSrcD), .MemWrite(MemWriteD), .Branch(BranchD), .ALUSrc(ALUSrcD), .RegDst(RegDstD), .RegWrite(RegWriteD), .ExtOp(ExtOpD), .ALUCtrl(ALUCtrlD), .loen(loenD), .hien(hienD));
 	wire [31:0]		RegWDataM;
 	wire [31:0]		RegWDataW;
 	wire [4:0]		WriteRegM;
@@ -103,8 +108,8 @@ module mips(
 	assign rdD = InstrD[15 : 11];
 	GRF rf(clk, BranchW && condition ? RegWriteW && trueW : RegWriteW, reset, rsD, rtD, WriteRegW, RegWDataW, IAddrW, RegRData1D, RegRData2D);
 	ext immext(InstrD[15:0], ExtOpD, ImmD);
-	wire [31:0]		cmp1;
-	wire [31:0]		cmp2;
+	wire [31:0]		cmp1; 	// 比较运算数1
+	wire [31:0]		cmp2;   // 比较运算数2
 	wire 			true;
 	assign PCSrc = BranchD && true;
 	wire [31:0]		jumpto;
@@ -112,7 +117,7 @@ module mips(
 	assign cmp2 = ForwardrtD == 3 ? PC4E : ForwardrtD == 2 ? RegWDataM : ForwardrtD == 1 ? RegWDataW : RegRData2D;
 	compare cmp(cmp1, cmp2, ALUCtrlD[2 : 0], true);
 	assign jumpto = ALUSrcD[0] ? {IAddrF[31 : 28], InstrD[25 : 0], 2'b00} : cmp1;
-	assign nextPC = JumpD ? jumpto : PCSrc ? PC4D + ImmD :IAddrF + 4;
+	assign nextPC = JumpD ? jumpto : PCSrc ? PC4D + ImmD : IAddrF + 4;  
 	 
 	wire [31:0]		RegRData1E;
 	wire [31:0]		RegRData2E;
@@ -121,8 +126,9 @@ module mips(
 	wire [4:0]		rdE;
 	wire [31:0]		ImmE;
 	wire 			trueE;
+
 	preg32 InstrDE(clk, 1'b1, stall | reset, InstrD, InstrE);
-	preg32 PC4DE(clk, 1'b1, stall | reset, (delay_slot ? PC4D + 4 : PC4D), PC4E);
+	preg32 PC4DE(clk, 1'b1, stall | reset, (delay_slot ? PC4D + 4 : PC4D), PC4E); // 如果延迟 则将pc + 4付给PC4E
 	preg32 IAddrDE(clk, 1'b1, stall | reset, IAddrD, IAddrE);
 	preg32 RD1DE(clk, 1'b1, stall | reset, cmp1, RegRData1E);
 	preg32 RD2DE(clk, 1'b1, stall | reset, cmp2, RegRData2E);
@@ -161,7 +167,7 @@ module mips(
 	//wire [31:0]loM;
 	//wire [31:0]hiM;
 	wire 			trueM;
-	assign RegWDataM = RegSrcM == 2 ? PC4M : ALUOutM;
+	assign RegWDataM = RegSrcM == 2 ? PC4M : ALUOutM;  // E -> M
 	assign WData = ForwardrtM ? RegWDataW : MemWDataM;
 	preg32 InstrEM(clk, 1'b1, reset, InstrE, InstrM);
 	preg32 ALUOutEM(clk, 1'b1, reset, ALUOutE, ALUOutM);
@@ -192,7 +198,7 @@ module mips(
 	wire [31:0]		MemRDataW;
 	//wire [31:0]hiW;
 	//wire [31:0]loW;
-	preg32 InstrMW(clk, 1'b1, reset, InstrM, InstrW);
+	preg32 InstrMW(clk, 1'b1, reset, InstrM, InstrW);  // M -> W
 	preg32 ALUOutMW(clk, 1'b1, reset, ALUOutM, ALUOutW);
 	preg32 PC4MW(clk, 1'b1, reset, PC4M, PC4W);
 	preg32 IAddrMW(clk, 1'b1, reset, IAddrM, IAddrW);
@@ -201,6 +207,7 @@ module mips(
 	//preg32 loMW(clk,1'b1,reset,loM,loW);
 	preg5 WriteRegMW(clk, 1'b1, reset, WriteRegM, WriteRegW);
 	preg1 trueMW(clk, 1'b1, reset, trueM, trueW);
+	// W阶段
 	Controller ctrlW(InstrW, JumpW, RegSrcW, MemWriteW, BranchW, ALUSrcW, RegDstW, RegWriteW, ExtOpW, ALUCtrlW, loenW, hienW);
 	assign RegWDataW = RegSrcW == 2 ? PC4W : RegSrcW == 1 ? MemRDataW : ALUOutW;
 	 

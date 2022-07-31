@@ -1,15 +1,15 @@
 `timescale 1ns / 1ns
 
 module DM_8bit(
-	input clk,
-	input WE,
-	input reset,
-	input isu,
-	input [1:0]MemDst,
-	input [13:0]Addr,
-	input [31:0]WData,
-	input [31:0]IAddr,
-	output [31:0]RData
+	input 		clk,
+	input 		WE,
+	input 		reset,
+	input 		isu,
+	input [1:0] MemDst,
+	input [13:0] Addr,
+	input [31:0] WData,
+	input [31:0] IAddr,
+	output [31:0] RData
 );
     reg 	[7:0]	ram [0:16383];  // 128 * 128
 	wire 	[31:0]	out1;

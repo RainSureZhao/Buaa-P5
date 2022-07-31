@@ -3,21 +3,21 @@
 module conflict(
 	//stall  暂停处理
 	// F: 取指阶段    D: 译码阶段  E:执行阶段  M:
-	input [4:0]		WriteRegE,
-	input [4:0]		WriteRegM,
-	input 			RegWriteE,
-	input 			RegWriteM,
-	input [2:0]		RegSrcE,
-	input [2:0]		RegSrcM,
-	input 			BranchD,
-	input 			JumpD,
-	input 			JumpE,
-	input [1:0]		RegDstD,
-	input [4:0]		rsD,
-	input [4:0]		rtD,
+	input [4:0]		WriteRegE,  // 执行阶段寄存器写地址
+	input [4:0]		WriteRegM,  // 存储阶段寄存器写地址
+	input 			RegWriteE,  // 执行阶段寄存器写使能
+	input 			RegWriteM,  // 存储阶段寄存器写使能
+	input [2:0]		RegSrcE,  // E阶段寄存器写选择信号
+	input [2:0]		RegSrcM,  // M阶段寄存器写选择信号
+	input 			BranchD,  // D阶段分支信号
+	input 			JumpD,  // D跳转
+	input 			JumpE,  // E跳转
+	input [1:0]		RegDstD,  // 寄存器写地址选择
+	input [4:0]		rsD,  // D阶段rs寄存器地址
+	input [4:0]		rtD,  // D阶段rt寄存器地址
 
 	//forward  转发处理
-	input [4:0]		rsE,
+	input [4:0]		rsE,  
 	input [4:0]		rtE,
 	input [4:0]		WriteRegW,
 	input 			RegWriteW,
@@ -36,10 +36,11 @@ module conflict(
 	output [1:0]	ForwardrtE,
 	output ForwardrtM
 );
-    //stall
+	// D E M W
+    //stall  暂停四种情况
 	wire branchstall, jumpstall, loadstall;
 	assign branchstall = BranchD && 
-					((WriteRegE !=0 && RegWriteE && RegSrcE !=2 && (rsD == WriteRegE ||rtD == WriteRegE))||
+					((WriteRegE != 0 && RegWriteE && RegSrcE != 2 && (rsD == WriteRegE || rtD == WriteRegE ))||
 							(WriteRegM != 0 && RegSrcM == 1 && ( rsD == WriteRegM || rtD == WriteRegM)));
 	assign jumpstall = JumpD && 
 					(WriteRegE != 0 && (RegWriteE && RegSrcE != 2 && rsD == WriteRegE) ||
@@ -48,7 +49,7 @@ module conflict(
 	//assign muldivstall=mdbusy && usehilo; 
 	assign stall = branchstall || jumpstall || loadstall;
 	
-	//forward
+	//forward  转发
 	assign ForwardrsD = WriteRegE != 0 && RegWriteE && WriteRegE == rsD ? 3 :
 					WriteRegM != 0 && RegWriteM && WriteRegM == rsD ? 2 :
 					WriteRegW !=0 && RegWriteW && WriteRegW == rsD ? 1 : 0;
